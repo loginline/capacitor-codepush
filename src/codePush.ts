@@ -299,7 +299,7 @@ class CodePush implements CodePushCapacitorPlugin {
    * @param downloadProgress Optional callback invoked during the download process. It is called several times with one DownloadProgress parameter.
    */
   public async sync(syncOptions?: SyncOptions, downloadProgress?: SuccessCallback<DownloadProgress>): Promise<SyncStatus> {
-    return await new Promise(
+    const endSyncStatus: SyncStatus = await new Promise(
       (resolve, reject) => {
         /* Check if a sync is already in progress */
         if (CodePush.SyncInProgress) {
@@ -328,8 +328,6 @@ class CodePush implements CodePushCapacitorPlugin {
               case SyncStatus.UPDATE_IGNORED:
               case SyncStatus.UPDATE_INSTALLED:
                 /* The sync has completed */
-                this.notifyApplicationReady();
-                CodePush.SyncInProgress = false;
                 resolve(result);
                 break;
               default:
@@ -348,6 +346,16 @@ class CodePush implements CodePushCapacitorPlugin {
         );
       }
     );
+
+    /* The sync has completed */
+    CodePush.SyncInProgress = false;
+    try {
+      await this.notifyApplicationReady();
+    } catch (error) {
+      CodePushUtil.logError("Sync notifyApplicationReady failed.", error);
+    }
+
+    return endSyncStatus;
   }
 
   /**
