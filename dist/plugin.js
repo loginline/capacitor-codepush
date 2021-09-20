@@ -1451,6 +1451,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                                 case SyncStatus.UPDATE_IGNORED:
                                 case SyncStatus.UPDATE_INSTALLED:
                                     /* The sync has completed */
+                                    this.notifyApplicationReady();
                                     CodePush$1.SyncInProgress = false;
                                     resolve(result);
                                     break;
@@ -1498,7 +1499,6 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                 /* Handle other options. Dialog options will not be overwritten. */
                 CodePushUtil.copyUnassignedMembers(defaultSyncOptions, syncOptions);
             }
-            this.notifyApplicationReady();
             const onError = (error) => {
                 CodePushUtil.logError("An error occurred during sync.", error);
                 syncCallback && syncCallback(error, SyncStatus.ERROR);

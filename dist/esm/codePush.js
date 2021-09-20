@@ -252,6 +252,7 @@ class CodePush {
                             case SyncStatus.UPDATE_IGNORED:
                             case SyncStatus.UPDATE_INSTALLED:
                                 /* The sync has completed */
+                                this.notifyApplicationReady();
                                 CodePush.SyncInProgress = false;
                                 resolve(result);
                                 break;
@@ -302,7 +303,6 @@ class CodePush {
             /* Handle other options. Dialog options will not be overwritten. */
             CodePushUtil.copyUnassignedMembers(defaultSyncOptions, syncOptions);
         }
-        this.notifyApplicationReady();
         const onError = (error) => {
             CodePushUtil.logError("An error occurred during sync.", error);
             syncCallback && syncCallback(error, SyncStatus.ERROR);
