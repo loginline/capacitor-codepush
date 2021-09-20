@@ -328,6 +328,7 @@ class CodePush implements CodePushCapacitorPlugin {
               case SyncStatus.UPDATE_IGNORED:
               case SyncStatus.UPDATE_INSTALLED:
                 /* The sync has completed */
+                this.notifyApplicationReady();
                 CodePush.SyncInProgress = false;
                 resolve(result);
                 break;
@@ -384,8 +385,6 @@ class CodePush implements CodePushCapacitorPlugin {
       /* Handle other options. Dialog options will not be overwritten. */
       CodePushUtil.copyUnassignedMembers(defaultSyncOptions, syncOptions);
     }
-
-    this.notifyApplicationReady();
 
     const onError = (error: Error) => {
       CodePushUtil.logError("An error occurred during sync.", error);
