@@ -1424,7 +1424,7 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
          */
         sync(syncOptions, downloadProgress) {
             return __awaiter$5(this, void 0, void 0, function* () {
-                return yield new Promise((resolve, reject) => {
+                const endSyncStatus = yield new Promise((resolve, reject) => {
                     /* Check if a sync is already in progress */
                     if (CodePush$1.SyncInProgress) {
                         /* A sync is already in progress */
@@ -1451,8 +1451,6 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                                 case SyncStatus.UPDATE_IGNORED:
                                 case SyncStatus.UPDATE_INSTALLED:
                                     /* The sync has completed */
-                                    this.notifyApplicationReady();
-                                    CodePush$1.SyncInProgress = false;
                                     resolve(result);
                                     break;
                             }
@@ -1462,6 +1460,15 @@ var capacitorPlugin = (function (exports, acquisitionSdk, filesystem, core, http
                     CodePush$1.SyncInProgress = true;
                     this.syncInternal(syncCallbackAndUpdateSyncInProgress, syncOptions, downloadProgress);
                 });
+                /* The sync has completed */
+                CodePush$1.SyncInProgress = false;
+                try {
+                    yield this.notifyApplicationReady();
+                }
+                catch (error) {
+                    CodePushUtil.logError("Sync notifyApplicationReady failed.", error);
+                }
+                return endSyncStatus;
             });
         }
         /**

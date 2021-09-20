@@ -225,7 +225,7 @@ class CodePush {
      */
     sync(syncOptions, downloadProgress) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield new Promise((resolve, reject) => {
+            const endSyncStatus = yield new Promise((resolve, reject) => {
                 /* Check if a sync is already in progress */
                 if (CodePush.SyncInProgress) {
                     /* A sync is already in progress */
@@ -252,8 +252,6 @@ class CodePush {
                             case SyncStatus.UPDATE_IGNORED:
                             case SyncStatus.UPDATE_INSTALLED:
                                 /* The sync has completed */
-                                this.notifyApplicationReady();
-                                CodePush.SyncInProgress = false;
                                 resolve(result);
                                 break;
                             default:
@@ -266,6 +264,15 @@ class CodePush {
                 CodePush.SyncInProgress = true;
                 this.syncInternal(syncCallbackAndUpdateSyncInProgress, syncOptions, downloadProgress);
             });
+            /* The sync has completed */
+            CodePush.SyncInProgress = false;
+            try {
+                yield this.notifyApplicationReady();
+            }
+            catch (error) {
+                CodePushUtil.logError("Sync notifyApplicationReady failed.", error);
+            }
+            return endSyncStatus;
         });
     }
     /**
